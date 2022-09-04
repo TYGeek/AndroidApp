@@ -21,6 +21,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.provider.MediaStore
 import android.provider.Settings
+import android.text.TextUtils
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
@@ -46,26 +47,28 @@ import java.util.*
 
 class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
 
-    private lateinit var binding_root: ActivityAddUpdateDishBinding
-    private var imagePath: String = ""
+    private lateinit var mBinding: ActivityAddUpdateDishBinding
+    private var mImagePath: String = ""
+    private lateinit var mCustomListDialog: Dialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding_root = ActivityAddUpdateDishBinding.inflate(layoutInflater)
-        setContentView(binding_root.root)
+        mBinding = ActivityAddUpdateDishBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
 
         setupActionBar()
 
-        binding_root.ivAddDishImage.setOnClickListener(this)
-        binding_root.etType.setOnClickListener(this)
-        binding_root.etCategory.setOnClickListener(this)
-        binding_root.etCookingTime.setOnClickListener(this)
+        mBinding.ivAddDishImage.setOnClickListener(this)
+        mBinding.etType.setOnClickListener(this)
+        mBinding.etCategory.setOnClickListener(this)
+        mBinding.etCookingTime.setOnClickListener(this)
+        mBinding.btnAddDish.setOnClickListener(this)
     }
 
     private fun setupActionBar(){
-        setSupportActionBar(binding_root.toolbarAddDishActivity)
+        setSupportActionBar(mBinding.toolbarAddDishActivity)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding_root.toolbarAddDishActivity.setNavigationOnClickListener{
+        mBinding.toolbarAddDishActivity.setNavigationOnClickListener{
             onBackPressed()
         }
     }
@@ -94,6 +97,54 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                     Constants.DISH_COOKING_TIME)
                 return
             }
+            R.id.btn_add_dish -> {
+                // trim empty spaces from string
+                val title = mBinding.etTitle.text.toString().trim{ it <= ' ' }
+                val type = mBinding.etType.text.toString().trim{ it <= ' ' }
+                val category = mBinding.etCategory.text.toString().trim{ it <= ' ' }
+                val ingredients = mBinding.etIngredients.text.toString().trim{ it <= ' ' }
+                val cookingTime = mBinding.etCookingTime.text.toString().trim{ it <= ' ' }
+
+                when{
+                    TextUtils.isEmpty(mImagePath)->{
+                        Toast.makeText(this@AddUpdateDishActivity,
+                        resources.getString(R.string.error_msg_select_dish_image),
+                        Toast.LENGTH_SHORT).show()
+                    }
+                    TextUtils.isEmpty(title)->{
+                        Toast.makeText(this@AddUpdateDishActivity,
+                            resources.getString(R.string.error_msg_enter_dish_title),
+                            Toast.LENGTH_SHORT).show()
+                    }
+                    TextUtils.isEmpty(type)->{
+                        Toast.makeText(this@AddUpdateDishActivity,
+                            resources.getString(R.string.error_msg_select_dish_type),
+                            Toast.LENGTH_SHORT).show()
+                    }
+                    TextUtils.isEmpty(category)->{
+                        Toast.makeText(this@AddUpdateDishActivity,
+                            resources.getString(R.string.error_msg_select_dish_category),
+                            Toast.LENGTH_SHORT).show()
+                    }
+                    TextUtils.isEmpty(ingredients)->{
+                        Toast.makeText(this@AddUpdateDishActivity,
+                            resources.getString(R.string.error_msg_select_dish_ingredients),
+                            Toast.LENGTH_SHORT).show()
+                    }
+                    TextUtils.isEmpty(cookingTime)->{
+                        Toast.makeText(this@AddUpdateDishActivity,
+                            resources.getString(R.string.error_msg_select_dish_cooking_time),
+                            Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {
+                        Toast.makeText(this@AddUpdateDishActivity,
+                            "All the entries are valid.",
+                            Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                return
+            }
         }
     }
 
@@ -119,15 +170,15 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
             Glide.with(this)
                 .load(it)
                 .centerCrop()
-                .into(binding_root.ivDishImage)
+                .into(mBinding.ivDishImage)
 
             // save image to internal storage
-            imagePath = saveImageToInternalStorage(it)
+            mImagePath = saveImageToInternalStorage(it)
 
-            Log.e("ImagePath", imagePath)
+            Log.e("ImagePath", mImagePath)
 
             // chancge ivAddDishImage
-            binding_root.ivAddDishImage.setImageDrawable(
+            mBinding.ivAddDishImage.setImageDrawable(
                 ContextCompat.getDrawable(this,R.drawable.ic_vector_edit))
         }
     }
@@ -155,15 +206,15 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                                                      isFirstResource: Boolean): Boolean {
                             resource?.let {
                                 val bitmap: Bitmap = resource.toBitmap()
-                                imagePath = saveImageToInternalStorage(bitmap)
-                                Log.e("ImagePath", imagePath)
+                                mImagePath = saveImageToInternalStorage(bitmap)
+                                Log.e("ImagePath", mImagePath)
                             }
                             return false
                         }
                     })
-                    .into(binding_root.ivDishImage)
+                    .into(mBinding.ivDishImage)
 
-                binding_root.ivAddDishImage.setImageDrawable(
+                mBinding.ivAddDishImage.setImageDrawable(
                     ContextCompat.getDrawable(this,R.drawable.ic_vector_edit))
             }
         } else if(result.resultCode == Activity.RESULT_CANCELED){
@@ -256,20 +307,36 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
         return file.absolutePath
     }
 
-
     private fun customItemsDialog(title: String, itemList: List<String>, selection: String){
-        // Create dialog it this context
-        val customDialog = Dialog(this)
+        // Create dialog in this context
+        mCustomListDialog = Dialog(this)
         // Binding dialog_custom_list.xml layout
         val binding: DialogCustomListBinding = DialogCustomListBinding.inflate(layoutInflater)
         // set binding layout to dialog
-        customDialog.setContentView(binding.root)
+        mCustomListDialog.setContentView(binding.root)
 
         binding.tvTitle.text = title
         binding.rvList.layoutManager = LinearLayoutManager(this)
         val adaptor = CustomListItemAdaptor(this, itemList, selection)
         binding.rvList.adapter = adaptor
-        customDialog.show()
+        mCustomListDialog.show()
+    }
+
+    fun selectedListItem(item: String, selection: String){
+        when(selection){
+            Constants.DISH_TYPE->{
+                mCustomListDialog.dismiss()
+                mBinding.etType.setText(item)
+            }
+            Constants.DISH_CATEGORY->{
+                mCustomListDialog.dismiss()
+                mBinding.etCategory.setText(item)
+            }
+            Constants.DISH_COOKING_TIME->{
+                mCustomListDialog.dismiss()
+                mBinding.etCookingTime.setText(item)
+            }
+        }
     }
 
     companion object{

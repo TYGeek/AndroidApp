@@ -16,4 +16,12 @@
     <string name="title_select_dish_type">SELECT DISH TYPE</string>
     <string name="title_select_dish_category">SELECT DISH CATEGORY</string>
     <string name="title_select_dish_cooking_time">SELECT DISH COOKING TIME IN MINUTES</string>
+    <string name="ingredients">Ingredients</string>
+
+    <string name="error_msg_enter_dish_title">Enter dish title</string>
+    <string name="error_msg_select_dish_image">Select dish image</string>
+    <string name="error_msg_select_dish_type">Select dish type</string>
+    <string name="error_msg_select_dish_category">Select dish category</string>
+    <string name="error_msg_select_dish_ingredients">Select dish ingredients</string>
+    <string name="error_msg_select_dish_cooking_time">Select dish cooking time</string>
 </resources>
