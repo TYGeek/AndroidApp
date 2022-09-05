@@ -35,8 +35,10 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.favdish.databinding.DialogCustomListBinding
+import com.example.favdish.model.entities.FavDish
 import com.example.favdish.utils.Constants
 import com.example.favdish.view.adapters.CustomListItemAdaptor
+import com.example.favdish.viewmodel.FavDishViewModel
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
@@ -140,6 +142,17 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                         Toast.makeText(this@AddUpdateDishActivity,
                             "All the entries are valid.",
                             Toast.LENGTH_SHORT).show()
+                        // Create favdish object
+                        val favDishDetails: FavDish = FavDish(
+                            mImagePath,
+                            Constants.DISH_IMAGE_SOURCE_LOCAL,
+                            title,
+                            type,
+                            category,
+                            ingredients,
+                            cookingTime )
+
+                        mFavDishViewModel.insert(favDishDetails)
                     }
                 }
 
