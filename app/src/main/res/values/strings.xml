@@ -24,4 +24,6 @@
     <string name="error_msg_select_dish_category">Select dish category</string>
     <string name="error_msg_select_dish_ingredients">Select dish ingredients</string>
     <string name="error_msg_select_dish_cooking_time">Select dish cooking time</string>
+    <string name="no_dishes_added_yet">No dishes added yet</string>
+    <string name="image_contentDescription">Content description</string>
 </resources>
