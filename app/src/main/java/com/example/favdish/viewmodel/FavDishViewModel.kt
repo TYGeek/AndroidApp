@@ -1,8 +1,6 @@
 package com.example.favdish.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.favdish.model.database.FavDishRepository
 import com.example.favdish.model.entities.FavDish
 import kotlinx.coroutines.launch
@@ -13,6 +11,9 @@ class FavDishViewModel(private val repository: FavDishRepository): ViewModel() {
     fun insert(dish: FavDish) = viewModelScope.launch {
         repository.insertFavDishData(dish)
     }
+
+    // we put an observer on data
+    val allDishesList: LiveData<List<FavDish>> = repository.allDishesList.asLiveData()
 
 }
 

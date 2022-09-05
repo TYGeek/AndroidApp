@@ -2,16 +2,21 @@ package com.example.favdish.view.fragments
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.TextView
 import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import com.example.favdish.R
+import com.example.favdish.application.FavDishApplication
 import com.example.favdish.databinding.FragmentHomeBinding
 import com.example.favdish.view.activities.AddUpdateDishActivity
+import com.example.favdish.viewmodel.FavDishViewModel
+import com.example.favdish.viewmodel.FavDishViewModelFactory
 import com.example.favdish.viewmodel.HomeViewModel
 
 class HomeFragment : Fragment() {
@@ -21,6 +26,10 @@ class HomeFragment : Fragment() {
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
+
+    private val mFavDishViewModel: FavDishViewModel by viewModels {
+        FavDishViewModelFactory( (requireActivity().application as FavDishApplication).repository )
+    }
 
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
@@ -41,6 +50,16 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?)
     {
         super.onViewCreated(view, savedInstanceState)
+
+        // observe any changes and let it data to view
+        mFavDishViewModel.allDishesList.observe(viewLifecycleOwner){ dishes->
+            dishes.let {
+                for (item in it){
+                    Log.i("Dish Title", "${item.id} :: ${item.title}")
+                }
+            }
+        }
+
         // The usage of an interface lets you inject your own implementation
         val menuHost: MenuHost = requireActivity()
 
